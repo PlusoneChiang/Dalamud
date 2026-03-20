@@ -23,6 +23,8 @@ struct DalamudStartInfo {
         English,
         German,
         French,
+        SimplifiedChinese,
+        TraditionalChinese,
     };
     friend void from_json(const nlohmann::json&, ClientLanguage&);
 
