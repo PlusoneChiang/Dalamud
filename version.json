@@ -1,9 +1,9 @@
 {
-  "assemblyVersion": "12.0.1.5-tc.10",
+  "assemblyVersion": "12.0.1.5-tc.11",
   "supportedGameVer": "2026.03.12.0000.0000",
   "runtimeRequired": true,
   "runtimeVersion": "9.0.2",
-  "downloadUrl": "https://github.com/PlusoneChiang/Dalamud/releases/download/12.0.1.5-tc.10/dalamud-tc-12.0.1.5-tc.10.zip",
+  "downloadUrl": "https://github.com/PlusoneChiang/Dalamud/releases/download/12.0.1.5-tc.11/dalamud-tc-12.0.1.5-tc.11.zip",
   "track": "custom",
   "displayName": "Dalamud for TC region (API 12)",
   "key": null
