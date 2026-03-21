@@ -131,11 +131,11 @@ internal sealed class DataManager : IInternalDisposableService, IDataManager
 
     /// <inheritdoc/>
     public ExcelSheet<T> GetExcelSheet<T>(ClientLanguage? language = null, string? name = null) where T : struct, IExcelRow<T> 
-        => this.Excel.GetSheet<T>(language?.ToLumina(), name);
+        => this.Excel.GetSheet<T>(this.ResolveLuminaLanguage(language), name);
 
     /// <inheritdoc/>
     public SubrowExcelSheet<T> GetSubrowExcelSheet<T>(ClientLanguage? language = null, string? name = null) where T : struct, IExcelSubrow<T>
-        => this.Excel.GetSubrowSheet<T>(language?.ToLumina(), name);
+        => this.Excel.GetSubrowSheet<T>(this.ResolveLuminaLanguage(language), name);
 
     /// <inheritdoc/>
     public FileResource? GetFile(string path) 
@@ -165,6 +165,28 @@ internal sealed class DataManager : IInternalDisposableService, IDataManager
         => this.GameData.FileExists(path);
 
     #endregion
+
+    /// <summary>
+    /// Resolves the Lumina language for Excel sheet queries.
+    /// For Chinese (SC/TC) clients, the sqpack only contains data in the client's language,
+    /// so all language requests are forced to the default language to prevent UnsupportedLanguageException.
+    /// </summary>
+    internal Language? ResolveLuminaLanguage(ClientLanguage? language)
+    {
+        if (this.Language is ClientLanguage.TraditionalChinese or ClientLanguage.SimplifiedChinese)
+        {
+            // TC/SC sqpack only contains data in one language; force all requests to the default.
+            return language.HasValue ? this.Language.ToLumina() : null;
+        }
+
+        return language?.ToLumina();
+    }
+
+    /// <summary>
+    /// Resolves the Lumina language for Excel sheet queries with a non-nullable language parameter.
+    /// </summary>
+    internal Language ResolveLuminaLanguage(ClientLanguage language) =>
+        this.ResolveLuminaLanguage((ClientLanguage?)language) ?? this.Language.ToLumina();
 
     /// <inheritdoc/>
     void IInternalDisposableService.DisposeService()
