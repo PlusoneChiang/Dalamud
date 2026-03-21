@@ -2725,7 +2725,7 @@ internal class PluginInstallerWindow : Window, IDisposable
         // Update available
         var isMainRepoCrossUpdate = availablePluginUpdate != null &&
                                     availablePluginUpdate.UpdateManifest.RepoUrl != plugin.Manifest.RepoUrl &&
-                                    availablePluginUpdate.UpdateManifest.RepoUrl == PluginRepository.MainRepoUrl;
+                                    availablePluginUpdate.UpdateManifest.RepoUrl == PluginRepository.EffectiveMainRepoUrl;
         if (availablePluginUpdate != null)
         {
             label += Locs.PluginTitleMod_HasUpdate;
