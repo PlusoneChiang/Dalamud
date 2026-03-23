@@ -15,6 +15,14 @@
         <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
     </PropertyGroup>
 
+    <!-- CN Lumina fork switch: set to true to use lib/lumina-cn/ DLLs instead of NuGet -->
+    <PropertyGroup Label="CN Lumina">
+        <UseCNLumina Condition="'$(UseCNLumina)' == ''">true</UseCNLumina>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(UseCNLumina)' == 'true'">
+        <DefineConstants>$(DefineConstants);CN_LUMINA</DefineConstants>
+    </PropertyGroup>
+
     <!-- Code analysis settings for all Dalamud projects. -->
     <ItemGroup Label="Code Analysis">
         <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" PrivateAssets="All" />
