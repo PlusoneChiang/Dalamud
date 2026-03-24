@@ -331,3 +331,4 @@ ASALocalRun/
 
 # Lumina PDB files
 !lib/lumina-cn/*.pdb
+specs/
