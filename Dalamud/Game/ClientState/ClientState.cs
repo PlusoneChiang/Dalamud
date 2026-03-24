@@ -379,7 +379,7 @@ internal class ClientStatePluginScoped : IInternalDisposableService, IClientStat
     /// <inheritdoc/>
     public ClientLanguage ClientLanguage =>
         this.clientStateService.ClientLanguage == ClientLanguage.TraditionalChinese
-            ? ClientLanguage.SimplifiedChinese
+            ? ClientLanguage.Japanese
             : this.clientStateService.ClientLanguage;
 
     /// <inheritdoc/>
