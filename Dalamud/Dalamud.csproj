@@ -41,7 +41,7 @@
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     </PropertyGroup>
     <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Label="Warnings">

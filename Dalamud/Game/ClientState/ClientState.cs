@@ -377,7 +377,10 @@ internal class ClientStatePluginScoped : IInternalDisposableService, IClientStat
     public event Action<ContentFinderCondition>? CfPop;
 
     /// <inheritdoc/>
-    public ClientLanguage ClientLanguage => this.clientStateService.ClientLanguage;
+    public ClientLanguage ClientLanguage =>
+        this.clientStateService.ClientLanguage == ClientLanguage.TraditionalChinese
+            ? ClientLanguage.SimplifiedChinese
+            : this.clientStateService.ClientLanguage;
 
     /// <inheritdoc/>
     public ushort TerritoryType => this.clientStateService.TerritoryType;

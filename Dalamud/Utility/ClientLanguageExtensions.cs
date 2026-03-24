@@ -20,11 +20,12 @@ public static class ClientLanguageExtensions
             ClientLanguage.English            => Lumina.Data.Language.English,
             ClientLanguage.German             => Lumina.Data.Language.German,
             ClientLanguage.French             => Lumina.Data.Language.French,
-            ClientLanguage.SimplifiedChinese  => Lumina.Data.Language.ChineseSimplified,
 #if CN_LUMINA
+            ClientLanguage.SimplifiedChinese  => Lumina.Data.Language.ChineseTraditional,
             ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional,
             _                                 => Lumina.Data.Language.ChineseTraditional,
 #else
+            ClientLanguage.SimplifiedChinese  => Lumina.Data.Language.ChineseTraditional2,
             ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional2,
             _                                 => Lumina.Data.Language.ChineseTraditional2,
 #endif
