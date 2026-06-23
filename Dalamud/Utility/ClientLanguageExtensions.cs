@@ -14,22 +14,11 @@ public static class ClientLanguageExtensions
     /// <returns>Converted language.</returns>
     public static Lumina.Data.Language ToLumina(this ClientLanguage language)
     {
-        return language switch
-        {
-            ClientLanguage.Japanese           => Lumina.Data.Language.Japanese,
-            ClientLanguage.English            => Lumina.Data.Language.English,
-            ClientLanguage.German             => Lumina.Data.Language.German,
-            ClientLanguage.French             => Lumina.Data.Language.French,
 #if CN_LUMINA
-            ClientLanguage.SimplifiedChinese  => Lumina.Data.Language.ChineseTraditional,
-            ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional,
-            _                                 => Lumina.Data.Language.ChineseTraditional,
+        return Lumina.Data.Language.ChineseTraditional;
 #else
-            ClientLanguage.SimplifiedChinese  => Lumina.Data.Language.ChineseTraditional2,
-            ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional2,
-            _                                 => Lumina.Data.Language.ChineseTraditional2,
+        return Lumina.Data.Language.ChineseTraditional2;
 #endif
-        };
     }
 
     /// <summary>
