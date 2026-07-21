@@ -597,7 +597,7 @@ internal class SeStringCreatorWidget : IDataWindowWidget
 
         try
         {
-            var sheet = dataManager.Excel.GetSheet<RawRow>(this.language?.ToLumina() ?? Language.English, this.validImportSheetNames[this.importSelectedSheetName]);
+            var sheet = dataManager.Excel.GetSheet<RawRow>(dataManager.ResolveLuminaLanguage(this.language) ?? Language.English, this.validImportSheetNames[this.importSelectedSheetName]);
             var minRowId = (int)sheet.FirstOrDefault().RowId;
             var maxRowId = (int)sheet.LastOrDefault().RowId;
 

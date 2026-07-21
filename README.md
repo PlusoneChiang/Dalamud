@@ -1,4 +1,6 @@
-# Dalamud [![Discord Shield](https://discordapp.com/api/guilds/581875019861328007/widget.png?style=shield)](https://discord.gg/3NMcUV5)
+# Dalamud  [![Build and Release TC Edition](https://github.com/PlusoneChiang/Dalamud/actions/workflows/tc-release.yml/badge.svg)](https://github.com/PlusoneChiang/Dalamud/actions/workflows/tc-release.yml) [![Discord Shield](https://discordapp.com/api/guilds/581875019861328007/widget.png?style=shield)](https://discord.gg/3NMcUV5)
+
+> 繁中服 API 13 版本。
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/goatcorp/DalamudAssets/master/UIRes/logo.png" alt="Dalamud" width="200"/>

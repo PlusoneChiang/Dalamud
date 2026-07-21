@@ -1,4 +1,4 @@
-﻿using Dalamud.Storage.Assets;
+using Dalamud.Storage.Assets;
 
 using TerraFX.Interop.DirectX;
 
@@ -139,6 +139,22 @@ public enum DalamudAsset
     [DalamudAssetPath("UIRes", "NotoSansCJKkr-Regular.otf")]
     [DalamudAssetPath("UIRes", "NotoSansKR-Regular.otf")]
     NotoSansKrRegular = 2001,
+
+    /// <summary>
+    /// <see cref="DalamudAssetPurpose.Font"/>: Noto Sans CJK TC Regular.
+    /// Optional asset; only present in Traditional Chinese builds.
+    /// </summary>
+    [DalamudAsset(DalamudAssetPurpose.Font, required: false)]
+    [DalamudAssetPath("UIRes", "NotoSansTC-Regular.ttf")]
+    NotoSansTcRegular = 2005,
+
+    /// <summary>
+    /// <see cref="DalamudAssetPurpose.Font"/>: Noto Sans CJK SC Regular.
+    /// Optional asset; used as fallback for Simplified Chinese glyphs in Traditional Chinese builds.
+    /// </summary>
+    [DalamudAsset(DalamudAssetPurpose.Font, required: false)]
+    [DalamudAssetPath("UIRes", "NotoSansSC-Regular.ttf")]
+    NotoSansScRegular = 2006,
 
     /// <summary>
     /// <see cref="DalamudAssetPurpose.Font"/>: Inconsolata Regular.

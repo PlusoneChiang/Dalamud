@@ -581,6 +581,39 @@ internal sealed partial class FontAtlasFactory
                     GlyphRanges = default(FluentGlyphRangeBuilder).WithLanguage("zh-hant").BuildExact(),
                 });
             }
+            else if (Service<DalamudConfiguration>.Get().EffectiveLanguage == "tc")
+            {
+                var assetManager = Service<DalamudAssetManager>.GetNullable();
+                if (assetManager?.IsStreamImmediatelyAvailable(DalamudAsset.NotoSansTcRegular) is true)
+                {
+                    this.AddDalamudAssetFont(
+                        DalamudAsset.NotoSansTcRegular,
+                        fontConfig with
+                        {
+                            MergeFont = targetFont,
+                            GlyphRanges = default(FluentGlyphRangeBuilder).WithLanguage("zh-hant").BuildExact(),
+                        });
+                }
+                else
+                {
+                    this.AttachWindowsDefaultFont(CultureInfo.GetCultureInfo("zh-hant"), fontConfig with
+                    {
+                        GlyphRanges = default(FluentGlyphRangeBuilder).WithLanguage("zh-hant").BuildExact(),
+                    });
+                }
+
+                // Merge SC font as fallback for Simplified Chinese-exclusive code points.
+                if (assetManager?.IsStreamImmediatelyAvailable(DalamudAsset.NotoSansScRegular) is true)
+                {
+                    this.AddDalamudAssetFont(
+                        DalamudAsset.NotoSansScRegular,
+                        fontConfig with
+                        {
+                            MergeFont = targetFont,
+                            GlyphRanges = default(FluentGlyphRangeBuilder).WithLanguage("zh-hans").BuildExact(),
+                        });
+                }
+            }
             else if (Service<DalamudConfiguration>.Get().EffectiveLanguage == "zh"
                      || Service<DalamudIme>.GetNullable()?.EncounteredHan is true)
             {

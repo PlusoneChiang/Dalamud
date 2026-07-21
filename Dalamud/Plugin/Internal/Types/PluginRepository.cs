@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Dalamud.Configuration.Internal;
 using Dalamud.Logging.Internal;
 using Dalamud.Networking.Http;
 using Dalamud.Plugin.Internal.Types.Manifest;
@@ -23,9 +24,19 @@ namespace Dalamud.Plugin.Internal.Types;
 internal class PluginRepository
 {
     /// <summary>
-    /// The URL of the official main repository.
+    /// The default URL of the official main repository.
     /// </summary>
-    public const string MainRepoUrl = "https://kamori.goats.dev/Plugin/PluginMaster";
+    public const string DefaultMainRepoUrl = "https://kamori.goats.dev/Plugin/PluginMaster";
+
+    /// <summary>
+    /// Alias for <see cref="DefaultMainRepoUrl"/> for backward compatibility.
+    /// </summary>
+    public const string MainRepoUrl = DefaultMainRepoUrl;
+
+    /// <summary>
+    /// Gets the effective main repository URL, which may be overridden by the DALAMUD_MAIN_REPO_URL environment variable.
+    /// </summary>
+    public static string EffectiveMainRepoUrl { get; } = EnvironmentConfiguration.DalamudMainRepoUrl ?? DefaultMainRepoUrl;
 
     private const int HttpRequestTimeoutSeconds = 20;
 
@@ -64,7 +75,7 @@ internal class PluginRepository
             },
         };
         this.PluginMasterUrl = pluginMasterUrl;
-        this.IsThirdParty = pluginMasterUrl != MainRepoUrl;
+        this.IsThirdParty = pluginMasterUrl != EffectiveMainRepoUrl;
         this.IsEnabled = isEnabled;
     }
 
@@ -99,7 +110,7 @@ internal class PluginRepository
     /// <param name="happyHttpClient">An instance of <see cref="HappyHttpClient"/>.</param>
     /// <returns>The new instance of main repository.</returns>
     public static PluginRepository CreateMainRepo(HappyHttpClient happyHttpClient) =>
-        new(happyHttpClient, MainRepoUrl, true);
+        new(happyHttpClient, EffectiveMainRepoUrl, true);
 
     /// <summary>
     /// Reload the plugin master asynchronously in a task.

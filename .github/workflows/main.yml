@@ -1,5 +1,5 @@
 name: Build Dalamud
-on: [push, pull_request, workflow_dispatch]
+on: [pull_request, workflow_dispatch]
 
 # Globally blocking because of git pushes in deploy step
 concurrency:

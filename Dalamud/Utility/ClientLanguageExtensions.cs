@@ -20,7 +20,15 @@ public static class ClientLanguageExtensions
             ClientLanguage.English => Lumina.Data.Language.English,
             ClientLanguage.German => Lumina.Data.Language.German,
             ClientLanguage.French => Lumina.Data.Language.French,
-            _ => throw new ArgumentOutOfRangeException(nameof(language)),
+#if CN_LUMINA
+            ClientLanguage.SimplifiedChinese => Lumina.Data.Language.ChineseTraditional,
+            ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional,
+            _ => Lumina.Data.Language.ChineseTraditional,
+#else
+            ClientLanguage.SimplifiedChinese => Lumina.Data.Language.ChineseTraditional2,
+            ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional2,
+            _ => Lumina.Data.Language.ChineseTraditional2,
+#endif
         };
     }
 
@@ -28,7 +36,7 @@ public static class ClientLanguageExtensions
     /// Gets the language code from a ClientLanguage.
     /// </summary>
     /// <param name="value">The ClientLanguage to convert.</param>
-    /// <returns>The language code (ja, en, de, fr).</returns>
+    /// <returns>The language code (ja, en, de, fr, chs, tc).</returns>
     /// <exception cref="ArgumentOutOfRangeException">An exception that is thrown when no valid ClientLanguage was given.</exception>
     public static string ToCode(this ClientLanguage value)
     {
@@ -38,14 +46,16 @@ public static class ClientLanguageExtensions
             ClientLanguage.English => "en",
             ClientLanguage.German => "de",
             ClientLanguage.French => "fr",
-            _ => throw new ArgumentOutOfRangeException(nameof(value)),
+            ClientLanguage.SimplifiedChinese => "chs",
+            ClientLanguage.TraditionalChinese => "tc",
+            _ => "tc",
         };
     }
 
     /// <summary>
     /// Gets the ClientLanguage from a language code.
     /// </summary>
-    /// <param name="value">The language code to convert (ja, en, de, fr).</param>
+    /// <param name="value">The language code to convert (ja, en, de, fr, chs, tc).</param>
     /// <returns>The ClientLanguage.</returns>
     /// <exception cref="ArgumentOutOfRangeException">An exception that is thrown when no valid language code was given.</exception>
     public static ClientLanguage ToClientLanguage(this string value)
@@ -56,7 +66,9 @@ public static class ClientLanguageExtensions
             "en" => ClientLanguage.English,
             "de" => ClientLanguage.German,
             "fr" => ClientLanguage.French,
-            _ => throw new ArgumentOutOfRangeException(nameof(value)),
+            "chs" => ClientLanguage.SimplifiedChinese,
+            "tc" => ClientLanguage.TraditionalChinese,
+            _ => ClientLanguage.TraditionalChinese,
         };
     }
 }

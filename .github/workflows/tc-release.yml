@@ -1,0 +1,99 @@
+name: Build and Release TC Edition
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build TC Edition on Windows
+    runs-on: windows-2022
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Dalamud
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.200'
+
+      - name: Determine version and release tag
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$csproj = Get-Content "Dalamud/Dalamud.csproj"
+          $ver = ($csproj.Project.PropertyGroup | Where-Object { $_.DalamudVersion } | Select-Object -First 1).DalamudVersion
+          $tag = "$ver-tc.${{ github.run_number }}"
+          "DALAMUD_VERSION=$ver" >> $env:GITHUB_OUTPUT
+          "RELEASE_TAG=$tag"     >> $env:GITHUB_OUTPUT
+          Write-Host "Version: $ver  Tag: $tag"
+
+      - name: Define VERSION file
+        run: |
+          $env:COMMIT = $env:GITHUB_SHA.Substring(0, 7)
+          $env:REPO_NAME = $env:GITHUB_REPOSITORY -replace '.*/'
+          $env:BRANCH = $env:GITHUB_REF -replace '.*/'
+          ($env:REPO_NAME) >> VERSION
+          ($env:BRANCH) >> VERSION
+          ($env:COMMIT) >> VERSION
+
+      - name: Build and Test Dalamud
+        run: .\build.ps1 ci
+
+      - name: Package release artifact
+        id: package
+        shell: pwsh
+        run: |
+          $tag = "${{ steps.version.outputs.RELEASE_TAG }}"
+          $zip = "dalamud-tc-$tag.zip"
+          Compress-Archive -Path bin\Release\* -DestinationPath $zip
+          "ZIP_NAME=$zip" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.RELEASE_TAG }}
+          name: "Dalamud TC Edition ${{ steps.version.outputs.RELEASE_TAG }}"
+          prerelease: false
+          files: ${{ steps.package.outputs.ZIP_NAME }}
+          body: |
+            ## Dalamud TC Edition — Traditional Chinese Build
+
+            Base version: `${{ steps.version.outputs.DALAMUD_VERSION }}` (API 13)
+            Build: `#${{ github.run_number }}`
+
+            ### Changes from standard build
+            - New Dalamud UI language code `tc` maps to `zh-hant` culture
+            - **NotoSans-TC** font (`UIRes/NotoSansTC-Regular.ttf`) is downloaded automatically on first launch when language is set to `tc`
+
+            ### Installation
+            1. Extract the zip and replace your existing Dalamud files
+            2. In Dalamud settings, set the UI language to `tc`
+            3. NotoSans-TC font will be downloaded automatically on next launch
+
+      - name: Update version.json
+        shell: pwsh
+        run: |
+          $tag  = "${{ steps.version.outputs.RELEASE_TAG }}"
+          $zip  = "${{ steps.package.outputs.ZIP_NAME }}"
+          $repo = $env:GITHUB_REPOSITORY
+          $json = Get-Content version.json -Raw | ConvertFrom-Json
+          $json.assemblyVersion = $tag
+          $json.downloadUrl     = "https://github.com/$repo/releases/download/$tag/$zip"
+          $json | ConvertTo-Json -Depth 5 | Set-Content version.json
+          Write-Host "Updated version.json: assemblyVersion=$tag  downloadUrl=$($json.downloadUrl)"
+
+      - name: Commit updated version.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json
+          git commit -m "chore: update version.json to ${{ steps.version.outputs.RELEASE_TAG }}"
+          git push

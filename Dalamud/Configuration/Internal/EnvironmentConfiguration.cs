@@ -25,6 +25,11 @@ internal class EnvironmentConfiguration
     /// </summary>
     public static bool DalamudDoContextMenu { get; } = GetEnvironmentVariable("DALAMUD_ENABLE_CONTEXTMENU");
 
+    /// <summary>
+    /// Gets the custom main plugin repository URL, if set via DALAMUD_MAIN_REPO_URL environment variable.
+    /// </summary>
+    public static string? DalamudMainRepoUrl { get; } = Environment.GetEnvironmentVariable("DALAMUD_MAIN_REPO_URL");
+
     private static bool GetEnvironmentVariable(string name)
         => bool.Parse(Environment.GetEnvironmentVariable(name) ?? "false");
 }

@@ -138,14 +138,14 @@ internal class NounProcessor : IServiceType
     /// </remarks>
     private ReadOnlySeString ResolveNounJa(NounParams nounParams)
     {
-        var sheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nounParams.SheetName);
+        var sheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nounParams.SheetName);
         if (!sheet.TryGetRow(nounParams.RowId, out var row))
         {
             Log.Warning("Sheet {SheetName} does not contain row #{RowId}", nounParams.SheetName, nounParams.RowId);
             return default;
         }
 
-        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nameof(LSheets.Attributive));
+        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nameof(LSheets.Attributive));
 
         var builder = LSeStringBuilder.SharedPool.Get();
 
@@ -191,14 +191,14 @@ internal class NounProcessor : IServiceType
           a1->Offsets[4] = ArticleColumnIdx
         */
 
-        var sheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nounParams.SheetName);
+        var sheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nounParams.SheetName);
         if (!sheet.TryGetRow(nounParams.RowId, out var row))
         {
             Log.Warning("Sheet {SheetName} does not contain row #{RowId}", nounParams.SheetName, nounParams.RowId);
             return default;
         }
 
-        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nameof(LSheets.Attributive));
+        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nameof(LSheets.Attributive));
 
         var builder = LSeStringBuilder.SharedPool.Get();
 
@@ -253,14 +253,14 @@ internal class NounProcessor : IServiceType
              a1->Offsets[6] = ArticleColumnIdx
          */
 
-        var sheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nounParams.SheetName);
+        var sheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nounParams.SheetName);
         if (!sheet.TryGetRow(nounParams.RowId, out var row))
         {
             Log.Warning("Sheet {SheetName} does not contain row #{RowId}", nounParams.SheetName, nounParams.RowId);
             return default;
         }
 
-        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nameof(LSheets.Attributive));
+        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nameof(LSheets.Attributive));
 
         var builder = LSeStringBuilder.SharedPool.Get();
         ReadOnlySeString ross;
@@ -376,14 +376,14 @@ internal class NounProcessor : IServiceType
             a1->Offsets[5] = ArticleColumnIdx
         */
 
-        var sheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nounParams.SheetName);
+        var sheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nounParams.SheetName);
         if (!sheet.TryGetRow(nounParams.RowId, out var row))
         {
             Log.Warning("Sheet {SheetName} does not contain row #{RowId}", nounParams.SheetName, nounParams.RowId);
             return default;
         }
 
-        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(nounParams.Language.ToLumina(), nameof(LSheets.Attributive));
+        var attributiveSheet = this.dataManager.Excel.GetSheet<RawRow>(this.dataManager.ResolveLuminaLanguage(nounParams.Language), nameof(LSheets.Attributive));
 
         var builder = LSeStringBuilder.SharedPool.Get();
         ReadOnlySeString ross;
