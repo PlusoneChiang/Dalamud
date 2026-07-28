@@ -28,12 +28,44 @@ jobs:
         id: version
         shell: pwsh
         run: |
+          # Read base version from Dalamud.csproj
           [xml]$csproj = Get-Content "Dalamud/Dalamud.csproj"
-          $ver = ($csproj.Project.PropertyGroup | Where-Object { $_.DalamudVersion } | Select-Object -First 1).DalamudVersion
-          $tag = "$ver-tc.${{ github.run_number }}"
-          "DALAMUD_VERSION=$ver" >> $env:GITHUB_OUTPUT
-          "RELEASE_TAG=$tag"     >> $env:GITHUB_OUTPUT
-          Write-Host "Version: $ver  Tag: $tag"
+          $baseVer = ($csproj.Project.PropertyGroup | Where-Object { $_.DalamudVersion } | Select-Object -First 1).DalamudVersion
+
+          # Read current version from version.json
+          $versionJson = Get-Content version.json -Raw | ConvertFrom-Json
+          $curAssemblyVer = $versionJson.assemblyVersion
+
+          # Parse current version in version.json
+          $curBase = ""
+          $curBuild = 0
+          if ($curAssemblyVer -match '^([^-]+)-tc\.(\d+)$') {
+            $curBase = $Matches[1]
+            $curBuild = [int]$Matches[2]
+          }
+
+          # Also check git tags for $baseVer-tc.* (excluding -pre) to ensure no tag collision
+          $tags = git tag -l "$baseVer-tc.*" | Where-Object { $_ -notmatch '-pre' }
+          foreach ($t in $tags) {
+            if ($t -match '-tc\.(\d+)$') {
+              $num = [int]$Matches[1]
+              if ($num -gt $curBuild) { $curBuild = $num }
+            }
+          }
+
+          # Reset build number to 1 if base version changed, otherwise increment
+          if ($baseVer -ne $curBase) {
+            $nextBuild = 1
+          } else {
+            $nextBuild = $curBuild + 1
+          }
+
+          $tag = "$baseVer-tc.$nextBuild"
+
+          "DALAMUD_VERSION=$baseVer" >> $env:GITHUB_OUTPUT
+          "RELEASE_TAG=$tag"         >> $env:GITHUB_OUTPUT
+          "NEXT_BUILD=$nextBuild"    >> $env:GITHUB_OUTPUT
+          Write-Host "Base version: $baseVer  Release tag: $tag"
 
       - name: Define VERSION file
         run: |

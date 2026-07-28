@@ -32,22 +32,22 @@ jobs:
           [xml]$csproj = Get-Content "Dalamud/Dalamud.csproj"
           $baseVer = ($csproj.Project.PropertyGroup | Where-Object { $_.DalamudVersion } | Select-Object -First 1).DalamudVersion
 
-          # Read current TC build number from version.json and increment by 1
-          $versionJson = Get-Content version.json -Raw | ConvertFrom-Json
-          $assemblyVer = $versionJson.assemblyVersion   # e.g. "13.0.0.16-tc.1"
-          if ($assemblyVer -match '-tc\.(\d+)') {
-            $currentBuild = [int]$Matches[1]
-          } else {
-            $currentBuild = 0
+          # Find highest pre-release build number for current baseVer from git tags
+          $tags = git tag -l "$baseVer-tc-pre.*"
+          $maxBuild = 0
+          foreach ($t in $tags) {
+            if ($t -match '-tc-pre\.(\d+)$') {
+              $num = [int]$Matches[1]
+              if ($num -gt $maxBuild) { $maxBuild = $num }
+            }
           }
-          $nextBuild = $currentBuild + 1
+          $nextBuild = $maxBuild + 1
+          $tag = "$baseVer-tc-pre.$nextBuild"
 
-          $tag = "$baseVer-tc.$nextBuild-pre"
           "DALAMUD_VERSION=$baseVer"   >> $env:GITHUB_OUTPUT
           "RELEASE_TAG=$tag"           >> $env:GITHUB_OUTPUT
-          "CURRENT_BUILD=$currentBuild" >> $env:GITHUB_OUTPUT
           "NEXT_BUILD=$nextBuild"      >> $env:GITHUB_OUTPUT
-          Write-Host "Current build: $currentBuild  Pre-release tag: $tag"
+          Write-Host "Base version: $baseVer  Pre-release tag: $tag"
 
       - name: Define VERSION file
         run: |
