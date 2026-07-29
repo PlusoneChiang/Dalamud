@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Dalamud.Configuration.Internal;
 
 /// <summary>
@@ -26,9 +30,12 @@ internal class EnvironmentConfiguration
     public static bool DalamudDoContextMenu { get; } = GetEnvironmentVariable("DALAMUD_ENABLE_CONTEXTMENU");
 
     /// <summary>
-    /// Gets the custom main plugin repository URL, if set via DALAMUD_MAIN_REPO_URL environment variable.
+    /// Gets the custom main plugin repository URLs, if set via DALAMUD_MAIN_REPO_URL environment variable (separated by ';').
     /// </summary>
-    public static string? DalamudMainRepoUrl { get; } = Environment.GetEnvironmentVariable("DALAMUD_MAIN_REPO_URL");
+    public static IReadOnlyList<string> DalamudMainRepoUrls { get; } =
+        (Environment.GetEnvironmentVariable("DALAMUD_MAIN_REPO_URL") ?? string.Empty)
+        .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .ToList();
 
     private static bool GetEnvironmentVariable(string name)
         => bool.Parse(Environment.GetEnvironmentVariable(name) ?? "false");

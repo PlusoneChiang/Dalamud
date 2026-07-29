@@ -132,7 +132,7 @@ internal class PluginManager : IInternalDisposableService
                     }));
 
         this.configuration.PluginTestingOptIns ??= new();
-        this.MainRepo = PluginRepository.CreateMainRepo(this.happyHttpClient);
+        this.MainRepos = PluginRepository.CreateMainRepos(this.happyHttpClient);
 
         registerStartupBlocker(
             Task.Run(this.LoadAndStartLoadSyncPlugins),
@@ -223,9 +223,14 @@ internal class PluginManager : IInternalDisposableService
     }
 
     /// <summary>
-    /// Gets the main repository.
+    /// Gets the list of main repositories.
     /// </summary>
-    public PluginRepository MainRepo { get; }
+    public IReadOnlyList<PluginRepository> MainRepos { get; }
+
+    /// <summary>
+    /// Gets the primary main repository for backward compatibility.
+    /// </summary>
+    public PluginRepository MainRepo => this.MainRepos[0];
 
     /// <summary>
     /// Gets a list of all plugin repositories. The main repo should always be first.
@@ -428,7 +433,7 @@ internal class PluginManager : IInternalDisposableService
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task SetPluginReposFromConfigAsync(bool notify)
     {
-        var repos = new List<PluginRepository> { this.MainRepo };
+        var repos = new List<PluginRepository>(this.MainRepos);
         repos.AddRange(this.configuration.ThirdRepoList
                            .Where(repo => repo.IsEnabled)
                            .Select(repo => new PluginRepository(this.happyHttpClient, repo.Url, repo.IsEnabled)));
@@ -733,9 +738,9 @@ internal class PluginManager : IInternalDisposableService
         try
         {
             Debug.Assert(!this.Repos.First().IsThirdParty, "First repository should be main repository");
-            await this.Repos.First().ReloadPluginMasterAsync(); // Load official repo first
+            await Task.WhenAll(this.MainRepos.Select(repo => repo.ReloadPluginMasterAsync()));
 
-            await Task.WhenAll(this.Repos.Skip(1).Select(repo => repo.ReloadPluginMasterAsync()));
+            await Task.WhenAll(this.Repos.Skip(this.MainRepos.Count).Select(repo => repo.ReloadPluginMasterAsync()));
 
             Log.Information("PluginMasters reloaded, now refiltering...");
 

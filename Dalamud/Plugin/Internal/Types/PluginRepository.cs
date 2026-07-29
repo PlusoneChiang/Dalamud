@@ -34,9 +34,30 @@ internal class PluginRepository
     public const string MainRepoUrl = DefaultMainRepoUrl;
 
     /// <summary>
-    /// Gets the effective main repository URL, which may be overridden by the DALAMUD_MAIN_REPO_URL environment variable.
+    /// Gets the effective main repository URLs, which may be overridden by the DALAMUD_MAIN_REPO_URL environment variable (separated by ';').
     /// </summary>
-    public static string EffectiveMainRepoUrl { get; } = EnvironmentConfiguration.DalamudMainRepoUrl ?? DefaultMainRepoUrl;
+    public static IReadOnlyList<string> EffectiveMainRepoUrls { get; } =
+        EnvironmentConfiguration.DalamudMainRepoUrls.Count > 0
+            ? EnvironmentConfiguration.DalamudMainRepoUrls
+            : new[] { DefaultMainRepoUrl };
+
+    /// <summary>
+    /// Gets the primary main repository URL for backward compatibility.
+    /// </summary>
+    public static string EffectiveMainRepoUrl => EffectiveMainRepoUrls[0];
+
+    /// <summary>
+    /// Determines whether the specified URL is one of the main repositories.
+    /// </summary>
+    /// <param name="url">The repository URL to check.</param>
+    /// <returns>True if the URL is a main repository URL; otherwise, false.</returns>
+    public static bool IsMainRepoUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return false;
+
+        return EffectiveMainRepoUrls.Contains(url, StringComparer.OrdinalIgnoreCase);
+    }
 
     private const int HttpRequestTimeoutSeconds = 20;
 
@@ -75,7 +96,7 @@ internal class PluginRepository
             },
         };
         this.PluginMasterUrl = pluginMasterUrl;
-        this.IsThirdParty = pluginMasterUrl != EffectiveMainRepoUrl;
+        this.IsThirdParty = !IsMainRepoUrl(pluginMasterUrl);
         this.IsEnabled = isEnabled;
     }
 
@@ -105,12 +126,12 @@ internal class PluginRepository
     public PluginRepositoryState State { get; private set; }
 
     /// <summary>
-    /// Gets a new instance of the <see cref="PluginRepository"/> class for the main repo.
+    /// Gets new instances of the <see cref="PluginRepository"/> class for all configured main repos.
     /// </summary>
     /// <param name="happyHttpClient">An instance of <see cref="HappyHttpClient"/>.</param>
-    /// <returns>The new instance of main repository.</returns>
-    public static PluginRepository CreateMainRepo(HappyHttpClient happyHttpClient) =>
-        new(happyHttpClient, EffectiveMainRepoUrl, true);
+    /// <returns>The list of main repository instances.</returns>
+    public static List<PluginRepository> CreateMainRepos(HappyHttpClient happyHttpClient) =>
+        EffectiveMainRepoUrls.Select(url => new PluginRepository(happyHttpClient, url, true)).ToList();
 
     /// <summary>
     /// Reload the plugin master asynchronously in a task.
