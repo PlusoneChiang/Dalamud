@@ -28,6 +28,12 @@ $env:DOTNET_MULTILEVEL_LOOKUP = 0
 # EXECUTION
 ###########################################################################
 
+$LuminaCsproj = "$PSScriptRoot\lib\Lumina.Excel\deps\Lumina\src\Lumina\Lumina.csproj"
+if (-not (Test-Path $LuminaCsproj)) {
+    Write-Output "Cloning Lumina TC submodule..."
+    git clone --depth 1 -b tc/api13 https://github.com/PlusoneChiang/Lumina.git "$PSScriptRoot\lib\Lumina.Excel\deps\Lumina"
+}
+
 function ExecSafe([scriptblock] $cmd) {
     & $cmd
     if ($LASTEXITCODE) { exit $LASTEXITCODE }

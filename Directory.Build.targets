@@ -1,5 +1,9 @@
 <Project>
   <!-- Force Lumina.Excel to use local deps/Lumina ProjectReference dynamically without modifying lib/Lumina.Excel files -->
+  <Target Name="EnsureLuminaSubmodule" BeforeTargets="BeforeBuild;AssignProjectConfiguration" Condition="'$(MSBuildProjectName)' == 'Lumina.Excel' And !Exists('$(MSBuildThisFileDirectory)lib\Lumina.Excel\deps\Lumina\src\Lumina\Lumina.csproj')">
+    <Exec Command="git clone --depth 1 -b tc/api13 https://github.com/PlusoneChiang/Lumina.git &quot;$(MSBuildThisFileDirectory)lib\Lumina.Excel\deps\Lumina&quot;" />
+  </Target>
+
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Lumina.Excel'">
     <PackageReference Remove="Lumina" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)lib\Lumina.Excel\deps\Lumina\src\Lumina\Lumina.csproj" />
