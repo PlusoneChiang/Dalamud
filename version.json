@@ -1,9 +1,9 @@
 {
-  "assemblyVersion": "13.0.0.16-tc.20",
+  "assemblyVersion": "13.0.0.16-tc.21",
   "supportedGameVer": "2026.07.22.0000.0000",
   "runtimeRequired": true,
   "runtimeVersion": "9.0.2",
-  "downloadUrl": "https://github.com/PlusoneChiang/Dalamud/releases/download/13.0.0.16-tc.20/dalamud-tc-13.0.0.16-tc.20.zip",
+  "downloadUrl": "https://github.com/PlusoneChiang/Dalamud/releases/download/13.0.0.16-tc.21/dalamud-tc-13.0.0.16-tc.21.zip",
   "track": "custom",
   "displayName": "Dalamud for TC region (API 13)",
   "key": null
