@@ -20,9 +20,9 @@ public static class ClientLanguageExtensions
             ClientLanguage.English => Lumina.Data.Language.English,
             ClientLanguage.German => Lumina.Data.Language.German,
             ClientLanguage.French => Lumina.Data.Language.French,
-            ClientLanguage.SimplifiedChinese => Lumina.Data.Language.ChineseTraditional,
-            ClientLanguage.TraditionalChinese => Lumina.Data.Language.ChineseTraditional,
-            _ => Lumina.Data.Language.ChineseTraditional,
+            ClientLanguage.SimplifiedChinese => Lumina.Data.Language.TraditionalChinese,
+            ClientLanguage.TraditionalChinese => Lumina.Data.Language.TraditionalChinese,
+            _ => Lumina.Data.Language.TraditionalChinese,
         };
     }
 

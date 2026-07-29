@@ -1,0 +1,7 @@
+<Project>
+  <!-- Force Lumina.Excel to use local deps/Lumina ProjectReference dynamically without modifying lib/Lumina.Excel files -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Lumina.Excel'">
+    <PackageReference Remove="Lumina" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)lib\Lumina.Excel\deps\Lumina\src\Lumina\Lumina.csproj" />
+  </ItemGroup>
+</Project>

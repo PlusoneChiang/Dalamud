@@ -44,9 +44,6 @@ internal sealed class DataManager : IInternalDisposableService, IDataManager
 
             using (Timings.Start("Lumina Init"))
             {
-                // Ensure Lumina uses 'tc' suffix for Traditional Chinese EXD sheets
-                Lumina.Data.LanguageUtil.LanguageMap[Lumina.Data.Language.ChineseTraditional] = "tc";
-
                 var luminaOptions = new LuminaOptions
                 {
                     LoadMultithreaded = true,
@@ -153,7 +150,7 @@ internal sealed class DataManager : IInternalDisposableService, IDataManager
     /// <summary>
     /// Resolves the Lumina language for Excel sheet queries.
     /// For Chinese (SC/TC) clients, the sqpack only contains data in the client's language,
-    /// so all language requests are forced to the default language to prevent UnsupportedLanguageException.
+    /// so all language requests are forced to the default language to prevent missing row crashes in EN/JA plugins.
     /// </summary>
     /// <param name="language">The requested client language, or null for default.</param>
     /// <returns>The resolved Lumina language.</returns>
@@ -161,8 +158,7 @@ internal sealed class DataManager : IInternalDisposableService, IDataManager
     {
         if (this.Language is ClientLanguage.TraditionalChinese or ClientLanguage.SimplifiedChinese)
         {
-            // TC/SC sqpack only contains data in one language; force all requests to the default.
-            return language.HasValue ? this.Language.ToLumina() : null;
+            return this.Language.ToLumina();
         }
 
         return language?.ToLumina();
