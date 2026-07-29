@@ -699,7 +699,8 @@ internal class PluginInstallerWindow : Window, IDisposable
         var downShift = ImGui.GetCursorPosY() + (headerTextSize.Y / 4) - 2;
         ImGui.SetCursorPosY(downShift);
 
-        ImGui.SetCursorPosX(windowSize.X - sortSelectWidth - (style.ItemSpacing.X * 2) - searchInputWidth - searchClearButtonWidth);
+        var refreshButtonWidth = searchClearButtonWidth;
+        ImGui.SetCursorPosX(windowSize.X - sortSelectWidth - (style.ItemSpacing.X * 3) - searchInputWidth - searchClearButtonWidth - refreshButtonWidth);
 
         var isProfileManager =
             this.categoryManager.CurrentGroupKind == PluginCategoryManager.GroupKind.Installed &&
@@ -708,6 +709,24 @@ internal class PluginInstallerWindow : Window, IDisposable
         // Disable search if profile editor
         using (ImRaii.Disabled(isProfileManager))
         {
+            ImGui.SetNextItemWidth(refreshButtonWidth);
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Sync))
+            {
+                var pm = Service<PluginManager>.GetNullable();
+                if (pm != null)
+                {
+                    Task.Run(async () => await pm.SetPluginReposFromConfigAsync(true));
+                }
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("重新整理套件庫 (Refresh Plugin Repositories)");
+            }
+
+            ImGui.SameLine();
+            ImGui.SetCursorPosY(downShift);
+
             var searchTextChanged = false;
             var prevSearchText = this.searchText;
             ImGui.SetNextItemWidth(searchInputWidth);
@@ -2523,9 +2542,12 @@ internal class PluginInstallerWindow : Window, IDisposable
             ImGui.Indent();
 
             // Installable from
-            if (manifest.SourceRepo.IsThirdParty)
+            if (manifest.SourceRepo != null)
             {
-                var repoText = Locs.PluginBody_Plugin3rdPartyRepo(manifest.SourceRepo.PluginMasterUrl);
+                var repoUrl = manifest.SourceRepo.PluginMasterUrl;
+                var repoText = manifest.SourceRepo.IsThirdParty
+                    ? Locs.PluginBody_Plugin3rdPartyRepo(repoUrl)
+                    : Loc.Localize("InstallerPluginMainRepo", "From main repository {0}").Format(repoUrl);
                 ImGui.TextColored(ImGuiColors.DalamudGrey3, repoText);
 
                 ImGuiHelpers.ScaledDummy(2);
@@ -2865,10 +2887,19 @@ internal class PluginInstallerWindow : Window, IDisposable
                 var fileText = Locs.PluginBody_DevPluginPath(plugin.DllFile.FullName);
                 ImGui.TextColored(ImGuiColors.DalamudGrey3, fileText);
             }
-            else if (isThirdParty)
+            else
             {
-                var repoText = Locs.PluginBody_Plugin3rdPartyRepo(manifest.InstalledFromUrl);
-                ImGui.TextColored(ImGuiColors.DalamudGrey3, repoText);
+                var repoUrl = !manifest.InstalledFromUrl.IsNullOrEmpty()
+                    ? manifest.InstalledFromUrl
+                    : this.pluginListAvailable.FirstOrDefault(x => x.InternalName == plugin.InternalName)?.SourceRepo?.PluginMasterUrl;
+                if (!repoUrl.IsNullOrEmpty())
+                {
+                    var is3rd = !PluginRepository.IsMainRepoUrl(repoUrl);
+                    var repoText = is3rd
+                        ? Locs.PluginBody_Plugin3rdPartyRepo(repoUrl!)
+                        : Loc.Localize("InstallerPluginMainRepo", "From main repository {0}").Format(repoUrl!);
+                    ImGui.TextColored(ImGuiColors.DalamudGrey3, repoText);
+                }
             }
 
             // Description
