@@ -44,6 +44,9 @@ internal sealed class DataManager : IInternalDisposableService, IDataManager
 
             using (Timings.Start("Lumina Init"))
             {
+                // Ensure Lumina uses 'tc' suffix for Traditional Chinese EXD sheets
+                Lumina.Data.LanguageUtil.LanguageMap[Lumina.Data.Language.ChineseTraditional] = "tc";
+
                 var luminaOptions = new LuminaOptions
                 {
                     LoadMultithreaded = true,
