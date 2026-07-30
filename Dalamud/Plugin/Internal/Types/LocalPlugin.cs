@@ -188,9 +188,32 @@ internal class LocalPlugin : IAsyncDisposable
     /// <summary>
     /// Gets a value indicating whether this plugin is serviced(repo still exists, but plugin no longer does).
     /// </summary>
-    public bool IsDecommissioned => !this.IsDev &&
-                                    this.GetSourceRepository()?.State == PluginRepositoryState.Success &&
-                                    this.GetSourceRepository()?.PluginMaster?.FirstOrDefault(x => x.InternalName == this.manifest.InternalName) == null;
+    public bool IsDecommissioned
+    {
+        get
+        {
+            if (this.IsDev)
+                return false;
+
+            var repos = Service<PluginManager>.Get().Repos;
+
+            if (this.manifest.IsThirdParty)
+            {
+                var sourceRepo = this.GetSourceRepository();
+                return sourceRepo?.State == PluginRepositoryState.Success &&
+                       sourceRepo?.PluginMaster?.FirstOrDefault(x => x.InternalName == this.manifest.InternalName) == null;
+            }
+
+            var mainRepos = repos.Where(x => !x.IsThirdParty).ToList();
+            if (mainRepos.Count == 0)
+                return false;
+
+            var allMainSuccess = mainRepos.All(x => x.State == PluginRepositoryState.Success);
+            var foundInAnyMain = mainRepos.Any(x => x.PluginMaster?.Any(p => p.InternalName == this.manifest.InternalName) == true);
+
+            return allMainSuccess && !foundInAnyMain;
+        }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this plugin has been banned.
@@ -545,13 +568,14 @@ internal class LocalPlugin : IAsyncDisposable
             return null;
 
         var repos = Service<PluginManager>.Get().Repos;
-        return repos.FirstOrDefault(x =>
-        {
-            if (!x.IsThirdParty && !this.manifest.IsThirdParty)
-                return true;
 
-            return x.PluginMasterUrl == this.manifest.InstalledFromUrl;
-        });
+        if (this.manifest.IsThirdParty)
+        {
+            return repos.FirstOrDefault(x => x.PluginMasterUrl == this.manifest.InstalledFromUrl);
+        }
+
+        return repos.FirstOrDefault(x => !x.IsThirdParty && x.PluginMaster?.Any(p => p.InternalName == this.manifest.InternalName) == true)
+               ?? repos.FirstOrDefault(x => !x.IsThirdParty);
     }
 
     /// <summary>
