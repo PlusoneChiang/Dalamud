@@ -70,7 +70,7 @@ internal sealed class ClientState : IInternalDisposableService, IClientState
 
         Log.Verbose("===== C L I E N T  S T A T E =====");
 
-        this.ClientLanguage = (ClientLanguage)dalamud.StartInfo.Language;
+        this.ClientLanguage = ClientLanguage.TraditionalChinese;
 
         this.handleZoneInitPacketHook = Hook<HandleZoneInitPacketDelegate>.FromAddress(this.AddressResolver.HandleZoneInitPacket, this.HandleZoneInitPacketDetour);
         this.uiModuleHandlePacketHook = Hook<UIModule.Delegates.HandlePacket>.FromAddress((nint)UIModule.StaticVirtualTablePointer->HandlePacket, this.UIModuleHandlePacketDetour);
@@ -497,10 +497,7 @@ internal class ClientStatePluginScoped : IInternalDisposableService, IClientStat
     public event Action<ContentFinderCondition>? CfPop;
 
     /// <inheritdoc/>
-    public ClientLanguage ClientLanguage =>
-        this.clientStateService.ClientLanguage == ClientLanguage.TraditionalChinese
-            ? ClientLanguage.Japanese
-            : this.clientStateService.ClientLanguage;
+    public ClientLanguage ClientLanguage => ClientLanguage.TraditionalChinese;
 
     /// <inheritdoc/>
     public ushort TerritoryType => this.clientStateService.TerritoryType;

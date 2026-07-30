@@ -164,11 +164,18 @@ public class SigScanner : IDisposable, ISigScanner
     /// <returns>An IntPtr to the static memory location.</returns>
     public unsafe IntPtr GetStaticAddressFromSig(string signature, int offset = 0)
     {
-        var instructionAddress = (byte*)this.ScanText(signature);
-        instructionAddress += offset;
-
         try
         {
+            var targetAddr = this.ScanText(signature);
+            if (targetAddr == IntPtr.Zero)
+            {
+                Log.Warning($"[SigScanner] Silently ignoring missing signature in GetStaticAddressFromSig: {signature}");
+                return IntPtr.Zero;
+            }
+
+            var instructionAddress = (byte*)targetAddr;
+            instructionAddress += offset;
+
             var reader = new UnsafeCodeReader(instructionAddress, signature.Length + 8);
             var decoder = Decoder.Create(64, reader, (ulong)instructionAddress, DecoderOptions.AMD);
             while (reader.CanReadByte)
@@ -181,12 +188,14 @@ public class SigScanner : IDisposable, ISigScanner
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            Log.Warning($"[SigScanner] Silently ignoring resolution exception in GetStaticAddressFromSig for '{signature}': {ex.Message}");
+            return IntPtr.Zero;
         }
 
-        throw new KeyNotFoundException($"Can't find any referenced address in the given signature {signature}.");
+        Log.Warning($"[SigScanner] Silently ignoring unreferenced static address in signature {signature}.");
+        return IntPtr.Zero;
     }
 
     /// <summary>
@@ -282,32 +291,41 @@ public class SigScanner : IDisposable, ISigScanner
             }
         }
 
-        var scanRet = Scan(this.TextSectionBase, this.TextSectionSize, signature);
-
-        if (this.IsCopy)
-            scanRet = new IntPtr(scanRet.ToInt64() - this.moduleCopyOffset);
-
-        var insnByte = Marshal.ReadByte(scanRet);
-
-        if (insnByte == 0xE8 || insnByte == 0xE9)
+        try
         {
-            scanRet = ReadJmpCallSig(scanRet);
-            var rel = scanRet - this.Module.BaseAddress;
-            if (rel < 0 || rel >= this.TextSectionSize)
+            var scanRet = Scan(this.TextSectionBase, this.TextSectionSize, signature);
+
+            if (this.IsCopy)
+                scanRet = new IntPtr(scanRet.ToInt64() - this.moduleCopyOffset);
+
+            var insnByte = Marshal.ReadByte(scanRet);
+
+            if (insnByte == 0xE8 || insnByte == 0xE9)
             {
-                throw new KeyNotFoundException(
-                    $"Signature \"{signature}\" resolved to 0x{rel:X} which is outside .text section. Possible signature conflicts?");
+                scanRet = ReadJmpCallSig(scanRet);
+                var rel = scanRet - this.Module.BaseAddress;
+                if (rel < 0 || rel >= this.TextSectionSize)
+                {
+                    Log.Warning(
+                        $"Signature \"{signature}\" resolved to 0x{rel:X} which is outside .text section.");
+                    return IntPtr.Zero;
+                }
             }
-        }
 
-        // If this is below the module, there's bound to be a problem with the sig/resolution... Let's not save it
-        // TODO: THIS IS A HACK! FIX THE ROOT CAUSE!
-        if (this.textCache != null && scanRet.ToInt64() >= this.Module.BaseAddress.ToInt64())
+            // If this is below the module, there's bound to be a problem with the sig/resolution... Let's not save it
+            // TODO: THIS IS A HACK! FIX THE ROOT CAUSE!
+            if (this.textCache != null && scanRet.ToInt64() >= this.Module.BaseAddress.ToInt64())
+            {
+                this.textCache[signature] = scanRet.ToInt64() - this.Module.BaseAddress.ToInt64();
+            }
+
+            return scanRet;
+        }
+        catch (KeyNotFoundException)
         {
-            this.textCache[signature] = scanRet.ToInt64() - this.Module.BaseAddress.ToInt64();
+            Log.Warning($"[SigScanner] Silently ignoring missing signature in ScanText: '{signature}'");
+            return IntPtr.Zero;
         }
-
-        return scanRet;
     }
 
     /// <inheritdoc/>
