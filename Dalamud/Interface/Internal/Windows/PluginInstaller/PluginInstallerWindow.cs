@@ -1396,27 +1396,57 @@ internal class PluginInstallerWindow : Window, IDisposable
 
     private void DrawAvailablePluginList()
     {
+        var proxies = this.GatherProxies().ToList();
+        if (proxies.Count == 0)
+            return;
+
+        var proxyGroups = proxies
+            .GroupBy(p => {
+                if (p.LocalPlugin is { IsDev: false } && !string.IsNullOrEmpty(p.LocalPlugin.Manifest.InstalledFromUrl))
+                    return p.LocalPlugin.Manifest.InstalledFromUrl;
+                if (p.RemoteManifest?.SourceRepo != null && !string.IsNullOrEmpty(p.RemoteManifest.SourceRepo.PluginMasterUrl))
+                    return p.RemoteManifest.SourceRepo.PluginMasterUrl;
+                return "Official / Local";
+            })
+            .OrderBy(g => g.Key)
+            .ToList();
+
         var i = 0;
-        foreach (var proxy in this.GatherProxies())
+        foreach (var group in proxyGroups)
         {
-            IPluginManifest applicableManifest = proxy.LocalPlugin != null ? proxy.LocalPlugin.Manifest : proxy.RemoteManifest;
-
-            if (applicableManifest == null)
-                throw new Exception("Could not determine manifest for available plugin");
-
-            ImGui.PushID($"{applicableManifest.InternalName}{applicableManifest.AssemblyVersion}");
-
-            if (proxy.LocalPlugin != null)
+            var repoUrl = group.Key;
+            if (!string.IsNullOrEmpty(repoUrl))
             {
-                var update = this.pluginListUpdatable.FirstOrDefault(up => up.InstalledPlugin == proxy.LocalPlugin);
-                this.DrawInstalledPlugin(proxy.LocalPlugin, i++, proxy.RemoteManifest, update);
-            }
-            else if (proxy.RemoteManifest != null)
-            {
-                this.DrawAvailablePlugin(proxy.RemoteManifest, i++);
+                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.22f, 0.24f, 0.27f, 0.90f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.30f, 0.32f, 0.36f, 1.00f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.18f, 0.20f, 0.22f, 1.00f));
+                if (ImGui.Button($"{repoUrl}###repo_{i}", new Vector2(ImGui.GetContentRegionAvail().X, 26f * ImGuiHelpers.GlobalScale)))
+                {
+                    ImGui.SetClipboardText(repoUrl);
+                }
+                ImGui.PopStyleColor(3);
             }
 
-            ImGui.PopID();
+            foreach (var proxy in group)
+            {
+                IPluginManifest applicableManifest = proxy.LocalPlugin != null ? proxy.LocalPlugin.Manifest : proxy.RemoteManifest;
+                if (applicableManifest == null)
+                    throw new Exception("Could not determine manifest for available plugin");
+
+                ImGui.PushID($"{applicableManifest.InternalName}{applicableManifest.AssemblyVersion}");
+
+                if (proxy.LocalPlugin != null)
+                {
+                    var update = this.pluginListUpdatable.FirstOrDefault(up => up.InstalledPlugin == proxy.LocalPlugin);
+                    this.DrawInstalledPlugin(proxy.LocalPlugin, i++, proxy.RemoteManifest, update);
+                }
+                else if (proxy.RemoteManifest != null)
+                {
+                    this.DrawAvailablePlugin(proxy.RemoteManifest, i++);
+                }
+
+                ImGui.PopID();
+            }
         }
 
         // Reset the category to "All" if we're on the "Hidden" category and there are no hidden plugins (we removed the last one)

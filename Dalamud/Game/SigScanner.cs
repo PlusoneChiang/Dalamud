@@ -531,6 +531,7 @@ public class SigScanner : IDisposable, ISigScanner
     {
         // .text
         this.moduleCopyPtr = Marshal.AllocHGlobal(this.Module.ModuleMemorySize);
+
         Buffer.MemoryCopy(
             this.Module.BaseAddress.ToPointer(),
             this.moduleCopyPtr.ToPointer(),
@@ -538,6 +539,52 @@ public class SigScanner : IDisposable, ISigScanner
             this.Module.ModuleMemorySize);
 
         this.moduleCopyOffset = this.moduleCopyPtr - this.Module.BaseAddress;
+
+        if (File.Exists(this.Module.FileName))
+        {
+            try
+            {
+                var fileBytes = File.ReadAllBytes(this.Module.FileName);
+                using var stream = new FileStream(this.Module.FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new BinaryReader(stream);
+
+                stream.Seek(0x3C, SeekOrigin.Begin);
+                var ntNewOffset = reader.ReadInt32();
+                stream.Seek(ntNewOffset + 6, SeekOrigin.Begin);
+                var numberOfSections = reader.ReadInt16();
+                stream.Seek(16, SeekOrigin.Current);
+                var optionalHeaderStart = stream.Position;
+                stream.Seek(optionalHeaderStart + 240, SeekOrigin.Begin);
+
+                for (var i = 0; i < numberOfSections; i++)
+                {
+                    var nameBytes = reader.ReadBytes(8);
+                    var sectionName = System.Text.Encoding.ASCII.GetString(nameBytes).TrimEnd('\0');
+                    var virtualSize = reader.ReadInt32();
+                    var virtualAddr = reader.ReadInt32();
+                    var sizeOfRawData = reader.ReadInt32();
+                    var pointerToRaw = reader.ReadInt32();
+                    var originalPosition = stream.Position;
+
+                    if (sectionName == ".text")
+                    {
+                        stream.Seek(pointerToRaw, SeekOrigin.Begin);
+                        Marshal.Copy(
+                            fileBytes,
+                            pointerToRaw,
+                            this.moduleCopyPtr + virtualAddr,
+                            virtualSize);
+                        return;
+                    }
+
+                    stream.Seek(originalPosition + 16, SeekOrigin.Begin);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Couldn't read clean .text section from executable file");
+            }
+        }
     }
 
     private void Load()
