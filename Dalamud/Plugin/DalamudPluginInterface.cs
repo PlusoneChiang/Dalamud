@@ -61,7 +61,10 @@ internal sealed class DalamudPluginInterface : IDalamudPluginInterface, IDisposa
 
         this.configs = Service<PluginManager>.Get().PluginConfigs;
         this.Reason = reason;
-        this.SourceRepository = this.IsDev ? SpecialPluginSource.DevPlugin : plugin.Manifest.InstalledFromUrl;
+        var sourceRepo = plugin.GetSourceRepository();
+        this.SourceRepository = this.IsDev
+            ? SpecialPluginSource.DevPlugin
+            : (!string.IsNullOrEmpty(sourceRepo?.PluginMasterUrl) ? sourceRepo.PluginMasterUrl : plugin.Manifest.InstalledFromUrl);
         this.IsTesting = plugin.IsTesting;
 
         this.LoadTime = DateTime.Now;
