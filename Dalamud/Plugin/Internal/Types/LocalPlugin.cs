@@ -569,13 +569,23 @@ internal class LocalPlugin : IAsyncDisposable
 
         var repos = Service<PluginManager>.Get().Repos;
 
-        if (this.manifest.IsThirdParty)
+        if (!string.IsNullOrEmpty(this.manifest.InstalledFromUrl))
         {
-            return repos.FirstOrDefault(x => x.PluginMasterUrl == this.manifest.InstalledFromUrl);
+            var exactMatch = repos.FirstOrDefault(x => x.PluginMasterUrl == this.manifest.InstalledFromUrl);
+            if (exactMatch != null)
+                return exactMatch;
         }
 
-        return repos.FirstOrDefault(x => !x.IsThirdParty && x.PluginMaster?.Any(p => p.InternalName == this.manifest.InternalName) == true)
-               ?? repos.FirstOrDefault(x => !x.IsThirdParty);
+        var anyRepoMatch = repos.FirstOrDefault(x =>
+            x.PluginMaster?.Any(p => string.Equals(p.InternalName, this.manifest.InternalName, StringComparison.OrdinalIgnoreCase)) == true);
+
+        if (anyRepoMatch != null)
+            return anyRepoMatch;
+
+        if (!this.manifest.IsThirdParty)
+            return repos.FirstOrDefault(x => !x.IsThirdParty);
+
+        return null;
     }
 
     /// <summary>
