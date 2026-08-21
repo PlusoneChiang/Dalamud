@@ -130,7 +130,6 @@ public enum DalamudAsset
     /// </summary>
     [DalamudAsset(DalamudAssetPurpose.Font)]
     [DalamudAssetPath("UIRes", "NotoSansCJKtc-Regular.otf")]
-    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Medium.otf")]
     NotoSansJpMedium = 1999,
 
     /// <summary>
@@ -139,7 +138,6 @@ public enum DalamudAsset
     /// </summary>
     [DalamudAsset(DalamudAssetPurpose.Font)]
     [DalamudAssetPath("UIRes", "NotoSansCJKtc-Regular.otf")]
-    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Medium.otf")]
     NotoSansScMedium = 2000,
 
     /// <summary>
@@ -156,7 +154,6 @@ public enum DalamudAsset
     /// </summary>
     [DalamudAsset(DalamudAssetPurpose.Font, required: false)]
     [DalamudAssetPath("UIRes", "NotoSansCJKtc-Regular.otf")]
-    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Medium.otf")]
     NotoSansTcRegular = 2005,
 
     /// <summary>

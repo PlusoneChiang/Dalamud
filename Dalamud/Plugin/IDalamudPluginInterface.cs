@@ -139,7 +139,7 @@ public interface IDalamudPluginInterface : IServiceProvider
     bool IsDebugging { get; }
 
     /// <summary>
-    /// Gets the current UI language in two-letter iso format.
+    /// Gets the current UI language as a BCP 47 language tag.
     /// </summary>
     string UiLanguage { get; }
 

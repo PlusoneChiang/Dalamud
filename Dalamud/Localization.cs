@@ -73,6 +73,14 @@ public class Localization : IServiceType
         });
 
     /// <summary>
+    /// Gets the BCP 47 language tag exposed to plugins for a Dalamud language code.
+    /// </summary>
+    /// <param name="langCode">The Dalamud language code.</param>
+    /// <returns>The language tag exposed to plugins.</returns>
+    internal static string GetPluginLanguageCode(string langCode) =>
+        langCode is "tw" or "tc" ? GetCultureInfoFromLangCode(langCode).Name : langCode;
+
+    /// <summary>
     /// Search the set-up localization data for the provided assembly for the given string key and return it.
     /// If the key is not present, the fallback is shown.
     /// The fallback is also required to create the string files to be localized.

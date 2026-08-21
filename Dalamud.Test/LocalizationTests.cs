@@ -22,5 +22,14 @@ namespace Dalamud.Test
             this.localization.SetupWithFallbacks();
             Assert.Equal("en", this.currentLangCode);
         }
+
+        [Theory]
+        [InlineData("tc", "zh-Hant")]
+        [InlineData("tw", "zh-Hant")]
+        [InlineData("en", "en")]
+        public void GetPluginLanguageCode_ReturnsBcp47Tag(string langCode, string expected)
+        {
+            Assert.Equal(expected, Localization.GetPluginLanguageCode(langCode));
+        }
     }
 }

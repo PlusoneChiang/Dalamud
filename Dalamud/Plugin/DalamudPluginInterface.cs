@@ -74,7 +74,7 @@ internal sealed class DalamudPluginInterface : IDalamudPluginInterface, IDisposa
         this.Sanitizer = new Sanitizer(dataManager.Language);
         if (configuration.LanguageOverride != null)
         {
-            this.UiLanguage = configuration.LanguageOverride;
+            this.UiLanguage = Localization.GetPluginLanguageCode(configuration.LanguageOverride);
         }
         else
         {
@@ -452,13 +452,14 @@ internal sealed class DalamudPluginInterface : IDalamudPluginInterface, IDisposa
 
     private void OnLocalizationChanged(string langCode)
     {
-        this.UiLanguage = langCode;
+        var pluginLangCode = Localization.GetPluginLanguageCode(langCode);
+        this.UiLanguage = pluginLangCode;
 
         foreach (var action in Delegate.EnumerateInvocationList(this.LanguageChanged))
         {
             try
             {
-                action(langCode);
+                action(pluginLangCode);
             }
             catch (Exception ex)
             {
