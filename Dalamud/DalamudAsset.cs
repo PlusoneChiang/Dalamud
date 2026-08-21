@@ -125,12 +125,22 @@ public enum DalamudAsset
     TitleScreenMenuShade = 1013,
 
     /// <summary>
-    /// <see cref="DalamudAssetPurpose.Font"/>: Noto Sans CJK JP Medium.
+    /// <see cref="DalamudAssetPurpose.Font"/>: Noto Sans CJK TC.
+    /// Kept at the CN framework value for binary compatibility with plugins built against it.
     /// </summary>
     [DalamudAsset(DalamudAssetPurpose.Font)]
-    [DalamudAssetPath("UIRes", "NotoSansCJKjp-Regular.otf")]
-    [DalamudAssetPath("UIRes", "NotoSansCJKjp-Medium.otf")]
-    NotoSansJpMedium = 2000,
+    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Regular.otf")]
+    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Medium.otf")]
+    NotoSansJpMedium = 1999,
+
+    /// <summary>
+    /// <see cref="DalamudAssetPurpose.Font"/>: Noto Sans CJK TC.
+    /// Kept for binary compatibility with plugins built against the CN framework.
+    /// </summary>
+    [DalamudAsset(DalamudAssetPurpose.Font)]
+    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Regular.otf")]
+    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Medium.otf")]
+    NotoSansScMedium = 2000,
 
     /// <summary>
     /// <see cref="DalamudAssetPurpose.Font"/>: Noto Sans CJK KR Regular.
@@ -145,7 +155,8 @@ public enum DalamudAsset
     /// Optional asset; only present in Traditional Chinese builds.
     /// </summary>
     [DalamudAsset(DalamudAssetPurpose.Font, required: false)]
-    [DalamudAssetPath("UIRes", "NotoSansTC-Regular.ttf")]
+    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Regular.otf")]
+    [DalamudAssetPath("UIRes", "NotoSansCJKtc-Medium.otf")]
     NotoSansTcRegular = 2005,
 
     /// <summary>
