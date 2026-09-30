@@ -334,7 +334,7 @@ public class SigScanner : IDisposable, ISigScanner
         try
         {
             result = this.ScanText(signature);
-            return true;
+            return result != IntPtr.Zero;
         }
         catch (KeyNotFoundException)
         {
